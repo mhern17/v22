@@ -191,14 +191,52 @@ def get_news_yfinance(ticker):
         items = yf.Ticker(ticker).news or []
     except Exception:
         items = []
+
     rows = []
+
     for item in items[:10]:
         content = item.get("content", item)
+
         title = content.get("title") or item.get("title") or "Untitled"
-        link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link", "")
-        publisher = content.get("provider", {}).get("displayName") or item.get("publisher", "")
+
+        link = (
+            content.get("canonicalUrl", {}).get("url")
+            or content.get("clickThroughUrl", {}).get("url")
+            or item.get("link", "")
+        )
+
+        publisher = (
+            content.get("provider", {}).get("displayName")
+            or item.get("publisher", "")
+        )
+
         summary = content.get("summary") or item.get("summary", "")
-        rows.append({"title": title, "link": link, "publisher": publisher, "summary": summary})
+
+        # Published date
+        pub_time = (
+            content.get("pubDate")
+            or item.get("providerPublishTime")
+        )
+
+        formatted_date = "Unknown date"
+
+        try:
+            if isinstance(pub_time, (int, float)):
+                formatted_date = datetime.fromtimestamp(pub_time).strftime("%b %d, %Y %I:%M %p")
+            elif isinstance(pub_time, str):
+                formatted_date = pd.to_datetime(pub_time).strftime("%b %d, %Y %I:%M %p")
+        except Exception:
+            pass
+
+        rows.append({
+            "title": title,
+            "link": link,
+            "publisher": publisher,
+            "summary": summary,
+            "date": formatted_date
+        })
+
+    return rows
     return rows
 
 # ---------- SIDEBAR ----------
