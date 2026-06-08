@@ -273,16 +273,72 @@ with top[0]:
 with top[1]:
     st.metric("Price", f"${latest.Close:,.2f}", f"{change:+.2f} / {change_pct:+.2f}%")
 with top[2]:
+
     st.metric("Signal Score", f"{score:+.0f}/100")
+
+    if score >= 60:
+        signal_range = "🔥 Strong Buy"
+
+    elif score >= 35:
+        signal_range = "🟢 Buy"
+
+    elif score >= 10:
+        signal_range = "🟡 Weak Bullish"
+
+    elif score > -10:
+        signal_range = "⚪ Neutral"
+
+    elif score > -35:
+        signal_range = "🟠 Weak Bearish"
+
+    elif score > -60:
+        signal_range = "🔴 Sell"
+
+    else:
+        signal_range = "🚨 Strong Sell"
+
     st.markdown(
-        "<span style='color:#9aa7b2;font-size:12px;'>Overall bullish/bearish rating from technical + fundamental analysis.</span>",
+        f"""
+        <div style="
+            font-size:13px;
+            color:#9aa7b2;
+            margin-top:-8px;
+        ">
+        {signal_range}
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
 with top[3]:
+
     st.metric("Confidence", f"{confidence}%")
+
+    if confidence >= 85:
+        confidence_range = "🎯 Extremely High"
+
+    elif confidence >= 70:
+        confidence_range = "🟢 High"
+
+    elif confidence >= 55:
+        confidence_range = "🟡 Moderate"
+
+    elif confidence >= 40:
+        confidence_range = "🟠 Low"
+
+    else:
+        confidence_range = "🔴 Weak"
+
     st.markdown(
-        "<span style='color:#9aa7b2;font-size:12px;'>How strongly the indicators agree with the signal.</span>",
+        f"""
+        <div style="
+            font-size:13px;
+            color:#9aa7b2;
+            margin-top:-8px;
+        ">
+        {confidence_range}
+        </div>
+        """,
         unsafe_allow_html=True
     )
 with top[4]:
