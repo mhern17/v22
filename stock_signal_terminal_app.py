@@ -177,79 +177,23 @@ def signal_engine(df, info):
     return action, score, confidence, reasons, entry, stop, target1, target2
 
 def simple_sentiment(text):
-    pos = ["beats", "beat", "raises", "upgrade", "bullish", "growth", "profit"]
-    neg = ["misses", "cuts", "downgrade", "bearish", "lawsuit", "decline"]
-
+    pos = ["beats", "beat", "raises", "upgrade", "bullish", "growth", "profit", "record", "surge", "strong", "approval", "partnership"]
+    neg = ["misses", "miss", "cuts", "downgrade", "bearish", "lawsuit", "probe", "decline", "weak", "loss", "recall", "bankruptcy"]
     t = (text or "").lower()
-
     s = sum(w in t for w in pos) - sum(w in t for w in neg)
-
-    if s > 0:
-        return "Positive", "news-pos", "🟢"
-
-    if s < 0:
-        return "Negative", "news-neg", "🔴"
-
+    if s > 0: return "Positive", "news-pos", "🟢"
+    if s < 0: return "Negative", "news-neg", "🔴"
     return "Neutral", "news-neu", "🟡"
-
 
 @st.cache_data(ttl=900)
 def get_news_yfinance(ticker):
-
     try:
         items = yf.Ticker(ticker).news or []
     except Exception:
         items = []
-
     rows = []
-
     for item in items[:10]:
-
         content = item.get("content", item)
-
-        title = content.get("title") or item.get("title") or "Untitled"
-
-        link = (
-            content.get("canonicalUrl", {}).get("url")
-            or content.get("clickThroughUrl", {}).get("url")
-            or item.get("link", "")
-        )
-
-        publisher = (
-            content.get("provider", {}).get("displayName")
-            or item.get("publisher", "")
-        )
-
-        summary = content.get("summary") or item.get("summary", "")
-
-        pub_time = (
-            content.get("pubDate")
-            or item.get("providerPublishTime")
-        )
-
-        formatted_date = "Unknown date"
-
-        try:
-            if isinstance(pub_time, (int, float)):
-                formatted_date = datetime.fromtimestamp(pub_time).strftime("%b %d, %Y %I:%M %p")
-
-            elif isinstance(pub_time, str):
-                formatted_date = pd.to_datetime(pub_time).strftime("%b %d, %Y %I:%M %p")
-
-        except Exception:
-            pass
-
-        rows.append({
-            "title": title,
-            "link": link,
-            "publisher": publisher,
-            "summary": summary,
-            "date": formatted_date
-        })
-
-    return rows
-
-    return rows
         title = content.get("title") or item.get("title") or "Untitled"
         link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link", "")
         publisher = content.get("provider", {}).get("displayName") or item.get("publisher", "")
@@ -392,9 +336,7 @@ with right:
         <div class="news-card {css}">
             <b>{emoji} {sent}</b><br>
             <a href="{url}" target="_blank" style="color:#e8edf2;text-decoration:none;"><b>{n['title']}</b></a><br>
-            <span class="small">
-{n.get('publisher','')} • {n.get('date','')}
-</span><br>
+            <span class="small">{n.get('publisher','')}</span><br>
             <span class="small">{n.get('summary','')[:180]}</span>
         </div>
         """, unsafe_allow_html=True)
