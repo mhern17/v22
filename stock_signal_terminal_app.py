@@ -356,33 +356,25 @@ with left:
     fig.add_trace(go.Scatter(x=df.index, y=df["SMA200"], name="SMA200", line=dict(width=1)))
     fig.update_layout(height=560, template="plotly_dark", margin=dict(l=10,r=10,t=25,b=10), xaxis_rangeslider_visible=False)
     st.plotly_chart(fig, use_container_width=True)
-
-st.markdown("### 🟢 Bullish Scanner")
+    st.markdown("### 🟢 Bullish Scanner")
 
 scanner_symbols = st.text_area(
     "Tickers to scan",
     value="AAPL\nMSFT\nNVDA\nTSLA\nAMD\nMETA\nGOOGL\nAMZN\nNFLX\nPLTR\nABAT",
-    height=160,
-    key="bullish_scanner_symbols"
+    height=160
 )
 
 scanner_tickers = [x.strip().upper() for x in scanner_symbols.splitlines() if x.strip()]
 
-if st.button("Run Bullish Scanner", key="bullish_scan_button"):
-
+if st.button("Run Bullish Scanner"):
     rows = []
 
     for symbol in scanner_tickers:
         try:
             h, inf = load_stock(symbol, "1y", "1d")
-
-            if h.empty:
-                continue
-
             dd = add_indicators(h)
 
             action, score, confidence, reasons, entry, stop, target1, target2 = signal_engine(dd, inf)
-
             latest = dd.dropna().iloc[-1]
 
             if score >= 35 and confidence >= 80:
@@ -396,14 +388,14 @@ if st.button("Run Bullish Scanner", key="bullish_scan_button"):
                 })
 
         except Exception:
-            continue
+            pass
 
-    if len(rows) > 0:
+    if rows:
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
     else:
-        st.info("Scanner ran. No bullish stocks found with confidence over 80%.")
-else:
-    st.caption("Click the button to scan for bullish stocks with confidence over 80%.")
+        st.warning("No bullish stocks found with confidence over 80%.")
+
+    tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
     with tabs[0]:
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Entry area", f"${entry:,.2f}")
