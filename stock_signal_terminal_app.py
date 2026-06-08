@@ -362,36 +362,28 @@ st.markdown("### 🟢 Bullish Scanner")
 scanner_symbols = st.text_area(
     "Tickers to scan",
     value="AAPL\nMSFT\nNVDA\nTSLA\nAMD\nMETA\nGOOGL\nAMZN\nNFLX\nPLTR\nABAT",
-    height=160
+    height=160,
+    key="bullish_scanner_symbols"
 )
 
-scanner_tickers = [
-    x.strip().upper()
-    for x in scanner_symbols.splitlines()
-    if x.strip()
-]
+scanner_tickers = [x.strip().upper() for x in scanner_symbols.splitlines() if x.strip()]
 
-run_scan = st.button("Run Bullish Scanner")
+if st.button("Run Bullish Scanner", key="bullish_scan_button"):
 
-if run_scan:
     rows = []
 
     for symbol in scanner_tickers:
         try:
             h, inf = load_stock(symbol, "1y", "1d")
 
-            if h.empty or len(h) < 220:
+            if h.empty:
                 continue
 
             dd = add_indicators(h)
-            clean_dd = dd.dropna()
-
-            if clean_dd.empty:
-                continue
 
             action, score, confidence, reasons, entry, stop, target1, target2 = signal_engine(dd, inf)
 
-            latest = clean_dd.iloc[-1]
+            latest = dd.dropna().iloc[-1]
 
             if score >= 35 and confidence >= 80:
                 rows.append({
@@ -403,19 +395,15 @@ if run_scan:
                     "Confidence": f"{confidence}%"
                 })
 
-        except Exception as e:
-            st.write(f"{symbol} skipped: {e}")
+        except Exception:
+            continue
 
-    if rows:
-        st.dataframe(
-            pd.DataFrame(rows).sort_values("Score", ascending=False),
-            use_container_width=True,
-            hide_index=True
-        )
+    if len(rows) > 0:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
     else:
-        st.warning("No bullish stocks found with confidence over 80%.")
-
-    tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
+        st.info("Scanner ran. No bullish stocks found with confidence over 80%.")
+else:
+    st.caption("Click the button to scan for bullish stocks with confidence over 80%.")
     with tabs[0]:
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Entry area", f"${entry:,.2f}")
