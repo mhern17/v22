@@ -356,7 +356,65 @@ with left:
     fig.update_layout(height=560, template="plotly_dark", margin=dict(l=10,r=10,t=25,b=10), xaxis_rangeslider_visible=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
+# =========================
+# BEARISH SCANNER
+# =========================
+
+st.markdown("### 🔻 Bearish Scanner")
+
+scanner_symbols = st.text_area(
+    "Scanner ticker universe",
+    value="""AAPL
+MSFT
+NVDA
+TSLA
+AMD
+META
+GOOGL
+AMZN
+NFLX
+PLTR
+SMCI
+COIN
+MARA
+RIOT
+RIVN
+LCID
+SOFI
+HOOD
+ABAT""",
+    height=180
+)
+
+scanner_tickers = [
+    x.strip().upper()
+    for x in scanner_symbols.splitlines()
+    if x.strip()
+]
+
+run_scan = st.button("Run Bearish Scanner")
+
+if run_scan:
+
+    scanner_df = run_bearish_scanner(scanner_tickers)
+
+    if scanner_df.empty:
+
+        st.success("No bearish stocks found with confidence over 80%.")
+
+    else:
+
+        st.dataframe(
+            scanner_df.sort_values(["Score"], ascending=True),
+            use_container_width=True,
+            hide_index=True
+        )
+
+# =========================
+# TABS
+# =========================
+
+tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
     with tabs[0]:
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Entry area", f"${entry:,.2f}")
