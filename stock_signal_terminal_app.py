@@ -374,7 +374,9 @@ with right:
         <div class="news-card {css}">
             <b>{emoji} {sent}</b><br>
             <a href="{url}" target="_blank" style="color:#e8edf2;text-decoration:none;"><b>{n['title']}</b></a><br>
-            <span class="small">{n.get('publisher','')}</span><br>
+            <span class="small">
+{n.get('publisher','')} • {n.get('date','')}
+</span><br>
             <span class="small">{n.get('summary','')[:180]}</span>
         </div>
         """, unsafe_allow_html=True)
