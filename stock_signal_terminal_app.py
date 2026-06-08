@@ -177,23 +177,25 @@ def signal_engine(df, info):
     return action, score, confidence, reasons, entry, stop, target1, target2
 
 def simple_sentiment(text):
-    pos = ["beats", "beat", "raises", "upgrade", "bullish", "growth", "profit", "record", "surge", "strong", "approval", "partnership"]
-    neg = ["misses", "miss", "cuts", "downgrade", "bearish", "lawsuit", "probe", "decline", "weak", "loss", "recall", "bankruptcy"]
+    pos = ["beats", "beat", "raises", "upgrade", "bullish", "growth", "profit"]
+    neg = ["misses", "cuts", "downgrade", "bearish", "lawsuit", "decline"]
+
     t = (text or "").lower()
+
     s = sum(w in t for w in pos) - sum(w in t for w in neg)
-    if s > 0: return "Positive", "news-pos", "🟢"
-    if s < 0: return "Negative", "news-neg", "🔴"
+
+    if s > 0:
+        return "Positive", "news-pos", "🟢"
+
+    if s < 0:
+        return "Negative", "news-neg", "🔴"
+
     return "Neutral", "news-neu", "🟡"
+
 
 @st.cache_data(ttl=900)
 def get_news_yfinance(ticker):
-    try:
-        items = yf.Ticker(ticker).news or []
-    except Exception:
-        items = []
-    rows = []
-    @st.cache_data(ttl=900)
-def get_news_yfinance(ticker):
+
     try:
         items = yf.Ticker(ticker).news or []
     except Exception:
@@ -202,6 +204,7 @@ def get_news_yfinance(ticker):
     rows = []
 
     for item in items[:10]:
+
         content = item.get("content", item)
 
         title = content.get("title") or item.get("title") or "Untitled"
@@ -219,7 +222,6 @@ def get_news_yfinance(ticker):
 
         summary = content.get("summary") or item.get("summary", "")
 
-        # Published date
         pub_time = (
             content.get("pubDate")
             or item.get("providerPublishTime")
@@ -230,8 +232,10 @@ def get_news_yfinance(ticker):
         try:
             if isinstance(pub_time, (int, float)):
                 formatted_date = datetime.fromtimestamp(pub_time).strftime("%b %d, %Y %I:%M %p")
+
             elif isinstance(pub_time, str):
                 formatted_date = pd.to_datetime(pub_time).strftime("%b %d, %Y %I:%M %p")
+
         except Exception:
             pass
 
@@ -242,6 +246,8 @@ def get_news_yfinance(ticker):
             "summary": summary,
             "date": formatted_date
         })
+
+    return rows
 
     return rows
         title = content.get("title") or item.get("title") or "Untitled"
