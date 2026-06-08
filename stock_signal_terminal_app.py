@@ -400,6 +400,7 @@ with tabs[1]:
     st.dataframe(tech, use_container_width=True, hide_index=True)
 
     with tabs[2]:
+
     pe = safe_float(info.get("trailingPE"))
     fpe = safe_float(info.get("forwardPE"))
     rev_growth = safe_float(info.get("revenueGrowth"))
@@ -419,6 +420,7 @@ with tabs[1]:
             "Analyst Target",
             "Recommendation"
         ],
+
         "Value": [
             info.get("marketCap"),
             info.get("trailingPE"),
@@ -431,21 +433,63 @@ with tabs[1]:
             info.get("targetMeanPrice"),
             info.get("recommendationKey"),
         ],
+
         "Rating": [
             "⚪ Info",
-            "🟢 Reasonable" if not math.isnan(pe) and pe < 30 else "🟠 Expensive" if not math.isnan(pe) else "⚪ N/A",
-            "🟢 Improving" if not math.isnan(pe) and not math.isnan(fpe) and fpe < pe else "🟠 Higher" if not math.isnan(fpe) else "⚪ N/A",
-            "🟢 Strong" if not math.isnan(rev_growth) and rev_growth > 0.10 else "🔴 Negative" if not math.isnan(rev_growth) and rev_growth < 0 else "🟡 Flat/Low",
-            "🟢 Strong" if not math.isnan(profit_margin) and profit_margin > 0.12 else "🔴 Negative" if not math.isnan(profit_margin) and profit_margin < 0 else "🟡 Weak",
-            "🟢 Manageable" if not math.isnan(debt_equity) and debt_equity < 80 else "🔴 Elevated" if not math.isnan(debt_equity) and debt_equity > 180 else "🟡 Moderate",
+
+            "🟢 Reasonable"
+            if not math.isnan(pe) and pe < 30
+            else "🟠 Expensive"
+            if not math.isnan(pe)
+            else "⚪ N/A",
+
+            "🟢 Improving"
+            if not math.isnan(pe) and not math.isnan(fpe) and fpe < pe
+            else "🟠 Higher"
+            if not math.isnan(fpe)
+            else "⚪ N/A",
+
+            "🟢 Strong"
+            if not math.isnan(rev_growth) and rev_growth > 0.10
+            else "🔴 Negative"
+            if not math.isnan(rev_growth) and rev_growth < 0
+            else "🟡 Flat/Low",
+
+            "🟢 Strong"
+            if not math.isnan(profit_margin) and profit_margin > 0.12
+            else "🔴 Negative"
+            if not math.isnan(profit_margin) and profit_margin < 0
+            else "🟡 Weak",
+
+            "🟢 Manageable"
+            if not math.isnan(debt_equity) and debt_equity < 80
+            else "🔴 Elevated"
+            if not math.isnan(debt_equity) and debt_equity > 180
+            else "🟡 Moderate",
+
             "⚪ Reference",
+
             "⚪ Reference",
-            "🟢 Above Current Price" if info.get("targetMeanPrice") and info.get("targetMeanPrice") > latest.Close else "🔴 Below Current Price" if info.get("targetMeanPrice") else "⚪ N/A",
-            "🟢 Bullish" if str(info.get("recommendationKey")).lower() in ["buy", "strong_buy"] else "🔴 Bearish" if str(info.get("recommendationKey")).lower() in ["sell", "underperform"] else "🟡 Neutral"
+
+            "🟢 Above Current Price"
+            if info.get("targetMeanPrice") and info.get("targetMeanPrice") > latest.Close
+            else "🔴 Below Current Price"
+            if info.get("targetMeanPrice")
+            else "⚪ N/A",
+
+            "🟢 Bullish"
+            if str(info.get("recommendationKey")).lower() in ["buy", "strong_buy"]
+            else "🔴 Bearish"
+            if str(info.get("recommendationKey")).lower() in ["sell", "underperform"]
+            else "🟡 Neutral"
         ]
     })
 
-    st.dataframe(fundamentals, use_container_width=True, hide_index=True)
+    st.dataframe(
+        fundamentals,
+        use_container_width=True,
+        hide_index=True
+    )
 
 
 with right:
