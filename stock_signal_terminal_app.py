@@ -399,7 +399,7 @@ with tabs[1]:
 
     st.dataframe(tech, use_container_width=True, hide_index=True)
 
-    with tabs[2]:
+with tabs[2]:
 
     pe = safe_float(info.get("trailingPE"))
     fpe = safe_float(info.get("forwardPE"))
