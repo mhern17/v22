@@ -244,8 +244,7 @@ st.sidebar.title("📈 Signal Terminal")
 ticker = st.sidebar.text_input("Ticker", value="NVDA").upper().strip()
 period = st.sidebar.selectbox("Chart range", ["3mo", "6mo", "1y", "2y", "5y"], index=2)
 interval = st.sidebar.selectbox("Candle interval", ["1d", "1h", "30m", "15m"], index=0)
-watchlist_raw = st.sidebar.text_area("Watchlist", "AAPL\nMSFT\nNVDA\nTSLA\nAMD\nMETA\nPLTR")
-watchlist = [x.strip().upper() for x in watchlist_raw.splitlines() if x.strip()]
+
 
 st.sidebar.caption("Educational model only. Not financial advice.")
 
@@ -301,7 +300,7 @@ with left:
     fig.update_layout(height=560, template="plotly_dark", margin=dict(l=10,r=10,t=25,b=10), xaxis_rangeslider_visible=False)
     st.plotly_chart(fig, use_container_width=True)
 
-    tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals", "Watchlist Scan"])
+    tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
     with tabs[0]:
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Entry area", f"${entry:,.2f}")
@@ -348,19 +347,6 @@ with left:
         }
         st.dataframe(pd.DataFrame([fundamentals]).T.rename(columns={0:"Value"}), use_container_width=True)
 
-    with tabs[3]:
-        rows = []
-        for w in watchlist:
-            try:
-                h, inf = load_stock(w, "1y", "1d")
-                if len(h) > 60:
-                    dd = add_indicators(h)
-                    a, s, conf, _, _, _, _, _ = signal_engine(dd, inf)
-                    rows.append({"Ticker": w, "Signal": a, "Score": s, "Confidence": f"{conf}%", "Price": round(dd.iloc[-1].Close, 2)})
-            except Exception:
-                pass
-        if rows:
-            st.dataframe(pd.DataFrame(rows).sort_values("Score", ascending=False), use_container_width=True, hide_index=True)
 
 with right:
     st.markdown("### Company News Sentiment")
