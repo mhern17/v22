@@ -367,7 +367,7 @@ with left:
         for r in reasons:
             st.write(f"• {r}")
 
-    with tabs[1]:
+with tabs[1]:
     tech = pd.DataFrame({
         "Metric": ["RSI", "MACD", "MACD Signal", "SMA20", "SMA50", "SMA200", "Volume vs 20D Avg", "20-period Return"],
         "Value": [
