@@ -17,7 +17,7 @@ st.markdown("""
 <style>
 :root { --green:#00c853; --red:#ff3b30; --yellow:#ffd60a; --bg:#0b0f14; --panel:#111820; --soft:#1b2530; }
 .stApp { background: #0b0f14; color: #e8edf2; }
-.block-container { padding-top: 1rem; }
+.block-container { padding-top: 4rem; }
 [data-testid="stSidebar"] { background: #080b0f; }
 .metric-card {
     background: #111820; border: 1px solid #1f2b38; border-radius: 16px;
