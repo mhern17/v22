@@ -237,8 +237,17 @@ with top[1]:
     st.metric("Price", f"${latest.Close:,.2f}", f"{change:+.2f} / {change_pct:+.2f}%")
 with top[2]:
     st.metric("Signal Score", f"{score:+.0f}/100")
+    st.markdown(
+        "<span style='color:#9aa7b2;font-size:12px;'>Overall bullish/bearish rating from technical + fundamental analysis.</span>",
+        unsafe_allow_html=True
+    )
+
 with top[3]:
     st.metric("Confidence", f"{confidence}%")
+    st.markdown(
+        "<span style='color:#9aa7b2;font-size:12px;'>How strongly the indicators agree with the signal.</span>",
+        unsafe_allow_html=True
+    )
 with top[4]:
     cls = "buy" if action == "BUY" else "sell" if action.startswith("SELL") else "hold"
     st.markdown(f"<div class='metric-card'><div class='big-signal {cls}'>{action}</div></div>", unsafe_allow_html=True)
