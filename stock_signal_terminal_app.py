@@ -368,40 +368,84 @@ with left:
             st.write(f"• {r}")
 
     with tabs[1]:
-        tech = pd.DataFrame({
-            "Metric": ["RSI", "MACD", "MACD Signal", "SMA20", "SMA50", "SMA200", "Volume vs 20D Avg", "20-period Return"],
-            "Value": [
-                round(latest.RSI,2), round(latest.MACD,3), round(latest.MACD_SIGNAL,3),
-                round(latest.SMA20,2), round(latest.SMA50,2), round(latest.SMA200,2),
-                f"{latest.Volume/latest.VOL20:.2f}x", f"{latest.RET20*100:.2f}%"
-            ],
-            "Meaning": [
-                "Momentum; 50-70 is bullish, >75 stretched",
-                "Trend momentum line",
-                "MACD trigger line",
-                "Short-term trend",
-                "Medium-term trend",
-                "Long-term trend",
-                "Breakouts need volume confirmation",
-                "Recent price strength"
-            ]
-        })
-        st.dataframe(tech, use_container_width=True, hide_index=True)
+    tech = pd.DataFrame({
+        "Metric": ["RSI", "MACD", "MACD Signal", "SMA20", "SMA50", "SMA200", "Volume vs 20D Avg", "20-period Return"],
+        "Value": [
+            round(latest.RSI,2), round(latest.MACD,3), round(latest.MACD_SIGNAL,3),
+            round(latest.SMA20,2), round(latest.SMA50,2), round(latest.SMA200,2),
+            f"{latest.Volume/latest.VOL20:.2f}x", f"{latest.RET20*100:.2f}%"
+        ],
+        "Rating": [
+            "🟢 Bullish" if 50 <= latest.RSI <= 68 else "🔴 Overbought" if latest.RSI > 75 else "🟡 Oversold" if latest.RSI < 30 else "🟠 Weak",
+            "🟢 Bullish" if latest.MACD > latest.MACD_SIGNAL else "🔴 Bearish",
+            "🟢 Positive" if latest.MACD_SIGNAL > 0 else "🔴 Negative",
+            "🟢 Above Price" if latest.Close > latest.SMA20 else "🔴 Below Price",
+            "🟢 Above Price" if latest.Close > latest.SMA50 else "🔴 Below Price",
+            "🟢 Above Price" if latest.Close > latest.SMA200 else "🔴 Below Price",
+            "🟢 High Volume" if latest.Volume > latest.VOL20 * 1.25 else "🟡 Normal",
+            "🟢 Positive" if latest.RET20 > 0 else "🔴 Negative"
+        ],
+        "Meaning": [
+            "Momentum; 50-70 is bullish, >75 stretched",
+            "Trend momentum line",
+            "MACD trigger line",
+            "Short-term trend",
+            "Medium-term trend",
+            "Long-term trend",
+            "Breakouts need volume confirmation",
+            "Recent price strength"
+        ]
+    })
+
+    st.dataframe(tech, use_container_width=True, hide_index=True)
 
     with tabs[2]:
-        fundamentals = {
-            "Market Cap": info.get("marketCap"),
-            "Trailing P/E": info.get("trailingPE"),
-            "Forward P/E": info.get("forwardPE"),
-            "Revenue Growth": info.get("revenueGrowth"),
-            "Profit Margins": info.get("profitMargins"),
-            "Debt/Equity": info.get("debtToEquity"),
-            "52W High": info.get("fiftyTwoWeekHigh"),
-            "52W Low": info.get("fiftyTwoWeekLow"),
-            "Analyst Target": info.get("targetMeanPrice"),
-            "Recommendation": info.get("recommendationKey"),
-        }
-        st.dataframe(pd.DataFrame([fundamentals]).T.rename(columns={0:"Value"}), use_container_width=True)
+    pe = safe_float(info.get("trailingPE"))
+    fpe = safe_float(info.get("forwardPE"))
+    rev_growth = safe_float(info.get("revenueGrowth"))
+    profit_margin = safe_float(info.get("profitMargins"))
+    debt_equity = safe_float(info.get("debtToEquity"))
+
+    fundamentals = pd.DataFrame({
+        "Metric": [
+            "Market Cap",
+            "Trailing P/E",
+            "Forward P/E",
+            "Revenue Growth",
+            "Profit Margins",
+            "Debt/Equity",
+            "52W High",
+            "52W Low",
+            "Analyst Target",
+            "Recommendation"
+        ],
+        "Value": [
+            info.get("marketCap"),
+            info.get("trailingPE"),
+            info.get("forwardPE"),
+            info.get("revenueGrowth"),
+            info.get("profitMargins"),
+            info.get("debtToEquity"),
+            info.get("fiftyTwoWeekHigh"),
+            info.get("fiftyTwoWeekLow"),
+            info.get("targetMeanPrice"),
+            info.get("recommendationKey"),
+        ],
+        "Rating": [
+            "⚪ Info",
+            "🟢 Reasonable" if not math.isnan(pe) and pe < 30 else "🟠 Expensive" if not math.isnan(pe) else "⚪ N/A",
+            "🟢 Improving" if not math.isnan(pe) and not math.isnan(fpe) and fpe < pe else "🟠 Higher" if not math.isnan(fpe) else "⚪ N/A",
+            "🟢 Strong" if not math.isnan(rev_growth) and rev_growth > 0.10 else "🔴 Negative" if not math.isnan(rev_growth) and rev_growth < 0 else "🟡 Flat/Low",
+            "🟢 Strong" if not math.isnan(profit_margin) and profit_margin > 0.12 else "🔴 Negative" if not math.isnan(profit_margin) and profit_margin < 0 else "🟡 Weak",
+            "🟢 Manageable" if not math.isnan(debt_equity) and debt_equity < 80 else "🔴 Elevated" if not math.isnan(debt_equity) and debt_equity > 180 else "🟡 Moderate",
+            "⚪ Reference",
+            "⚪ Reference",
+            "🟢 Above Current Price" if info.get("targetMeanPrice") and info.get("targetMeanPrice") > latest.Close else "🔴 Below Current Price" if info.get("targetMeanPrice") else "⚪ N/A",
+            "🟢 Bullish" if str(info.get("recommendationKey")).lower() in ["buy", "strong_buy"] else "🔴 Bearish" if str(info.get("recommendationKey")).lower() in ["sell", "underperform"] else "🟡 Neutral"
+        ]
+    })
+
+    st.dataframe(fundamentals, use_container_width=True, hide_index=True)
 
 
 with right:
