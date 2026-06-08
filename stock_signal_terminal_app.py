@@ -175,6 +175,7 @@ def signal_engine(df, info):
         target2 = np.nan
 
     return action, score, confidence, reasons, entry, stop, target1, target2
+    
 
 def simple_sentiment(text):
     pos = ["beats", "beat", "raises", "upgrade", "bullish", "growth", "profit", "record", "surge", "strong", "approval", "partnership"]
@@ -355,6 +356,44 @@ with left:
     fig.add_trace(go.Scatter(x=df.index, y=df["SMA200"], name="SMA200", line=dict(width=1)))
     fig.update_layout(height=560, template="plotly_dark", margin=dict(l=10,r=10,t=25,b=10), xaxis_rangeslider_visible=False)
     st.plotly_chart(fig, use_container_width=True)
+    st.markdown("### 🟢 Bullish Scanner")
+
+scanner_symbols = st.text_area(
+    "Tickers to scan",
+    value="AAPL\nMSFT\nNVDA\nTSLA\nAMD\nMETA\nGOOGL\nAMZN\nNFLX\nPLTR\nABAT",
+    height=160
+)
+
+scanner_tickers = [x.strip().upper() for x in scanner_symbols.splitlines() if x.strip()]
+
+if st.button("Run Bullish Scanner"):
+    rows = []
+
+    for symbol in scanner_tickers:
+        try:
+            h, inf = load_stock(symbol, "1y", "1d")
+            dd = add_indicators(h)
+
+            action, score, confidence, reasons, entry, stop, target1, target2 = signal_engine(dd, inf)
+            latest = dd.dropna().iloc[-1]
+
+            if score >= 35 and confidence >= 80:
+                rows.append({
+                    "Ticker": symbol,
+                    "Company": inf.get("shortName", symbol),
+                    "Price": round(latest.Close, 2),
+                    "Signal": action,
+                    "Score": score,
+                    "Confidence": f"{confidence}%"
+                })
+
+        except Exception:
+            pass
+
+    if rows:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    else:
+        st.warning("No bullish stocks found with confidence over 80%.")
 
     tabs = st.tabs(["Trade Plan", "Technicals", "Fundamentals"])
     with tabs[0]:
